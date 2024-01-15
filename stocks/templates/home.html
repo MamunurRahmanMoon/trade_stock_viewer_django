@@ -1,13 +1,21 @@
+<!-- myapp/templates/myapp/home.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stocks Data</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 <body>
     <h1>Stocks Data</h1>
     <table border="1">
+        
+        <!-- Delete Message Display Area -->
+        <div>
+            <h2 id="deleteMessages"> </h2>
+        </div>
+
         <thead>
             <tr>
                 <th>Date</th>
@@ -17,6 +25,7 @@
                 <th>Open</th>
                 <th>Close</th>
                 <th>Volume</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -24,14 +33,62 @@
                 <tr>
                     <td>{{ stock.date }}</td>
                     <td>{{ stock.trade_code }}</td>
-                    <td>{{ stock.high }}</td>
-                    <td>{{ stock.low }}</td>
-                    <td>{{ stock.open }}</td>
-                    <td>{{ stock.close }}</td>
-                    <td>{{ stock.volume }}</td>
+                    <td contenteditable="true">{{ stock.high }}</td>
+                    <td contenteditable="true">{{ stock.low }}</td>
+                    <td contenteditable="true">{{ stock.open }}</td>
+                    <td contenteditable="true">{{ stock.close }}</td>
+                    <td contenteditable="true">{{ stock.volume }}</td>
+                    <td>
+                        <button onclick="updateRow(this, '{{ stock.id }}')">Update</button>
+                        <button onclick="deleteRow(this, '{{ stock.id }}')">Delete</button>
+                        <span id="message{{ stock.id }}"></span>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <script>
+        function updateRow(button, stockId) {
+            var row = $(button).closest('tr');
+            var data = {
+                'high': row.find('td:eq(2)').text(),
+                'low': row.find('td:eq(3)').text(),
+                'open': row.find('td:eq(4)').text(),
+                'close': row.find('td:eq(5)').text(),
+                'volume': row.find('td:eq(6)').text(),
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '/update_stock/' + stockId + '/',
+                data: data,
+                success: function(response) {
+                    $('#message' + stockId).text('Data saved successfully').css('color', 'green');
+                },
+                error: function(error) {
+                    $('#message' + stockId).text('Error saving data').css('color', 'red');
+                }
+            });
+        }
+
+        function deleteRow(button, stockId) {
+            $.ajax({
+                type: 'POST',
+                url: '/delete_stock/' + stockId + '/',
+                success: function(response) {
+                    displayDeleteMessage('Data deleted successfully', 'green');
+                    $(button).closest('tr').remove();
+                },
+                error: function(error) {
+                    displayMessage('Error deleting data', 'red');
+                }
+            });
+        }
+
+        function displayDeleteMessage(message, color) {
+            $('#deleteMessages').text(message).css('color', color);
+        }
+    </script>
 </body>
 </html>
