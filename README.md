@@ -1,5 +1,14 @@
 # trade_stock_viewer_django
 # Live site: http://mamunurrahmanmoon.pythonanywhere.com/
+# Technology stack:
+  > Backend: Django
+
+  > Python libraries: django-import-export, pandas
+  
+  > Frontend: Chart.js (For chart)
+
+  > Javascript libraries: jquery 
+
 # All the new things for me in this project:
   > Handling json file in django project
 
