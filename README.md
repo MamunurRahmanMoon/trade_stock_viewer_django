@@ -1,5 +1,5 @@
 # trade_stock_viewer_django
-# <font color="red">Live site:</font>http://mamunurrahmanmoon.pythonanywhere.com/
+# Live site: http://mamunurrahmanmoon.pythonanywhere.com/
 # All the new things for me in this project:
   > Handling json file in django project
 
