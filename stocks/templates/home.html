@@ -1,35 +1,49 @@
-<!-- myapp/templates/myapp/home.html -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stocks Data</title>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-</head>
-<body>
-    <h1>Stocks Data</h1>
-    <table border="1">
-        
-        <!-- Delete Message Display Area -->
-        <div>
-            <h2 id="deleteMessages"> </h2>
-        </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Trade Code</th>
-                <th>High</th>
-                <th>Low</th>
-                <th>Open</th>
-                <th>Close</th>
-                <th>Volume</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for stock in stocks %}
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script> -->
+</head>
+
+<body>
+    <div class="chartView" style="width: 80%; margin: auto;">
+        <canvas id="lineChart" height="200">
+
+        </canvas>
+        {% block content %}
+
+        {% endblock %}
+    </div>
+
+    <div class="tabularView" style="width: 100%; height: fit-content; margin: auto;">
+        <h1>Stocks Data</h1>
+        <table border="1">
+
+            <!-- Delete Message Display Area -->
+            <div style="width: 80%; margin: auto;">
+                <h2 id="deleteMessages"> </h2>
+            </div>
+
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Trade Code</th>
+                    <th>High</th>
+                    <th>Low</th>
+                    <th>Open</th>
+                    <th>Close</th>
+                    <th>Volume</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in stocks %}
                 <tr>
                     <td>{{ stock.date }}</td>
                     <td>{{ stock.trade_code }}</td>
@@ -44,9 +58,11 @@
                         <span id="message{{ stock.id }}"></span>
                     </td>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
 
     <script>
         function updateRow(button, stockId) {
@@ -63,10 +79,10 @@
                 type: 'POST',
                 url: '/update_stock/' + stockId + '/',
                 data: data,
-                success: function(response) {
+                success: function (response) {
                     $('#message' + stockId).text('Data saved successfully').css('color', 'green');
                 },
-                error: function(error) {
+                error: function (error) {
                     $('#message' + stockId).text('Error saving data').css('color', 'red');
                 }
             });
@@ -76,11 +92,11 @@
             $.ajax({
                 type: 'POST',
                 url: '/delete_stock/' + stockId + '/',
-                success: function(response) {
+                success: function (response) {
                     displayDeleteMessage('Data deleted successfully', 'green');
                     $(button).closest('tr').remove();
                 },
-                error: function(error) {
+                error: function (error) {
                     displayMessage('Error deleting data', 'red');
                 }
             });
@@ -89,6 +105,38 @@
         function displayDeleteMessage(message, color) {
             $('#deleteMessages').text(message).css('color', color);
         }
+
+        const ctx = document.getElementById('lineChart')
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: '{{data.labels}}',
+                datasets: [{
+                    label: 'Close Prices',
+                    data: '{{data.close_prices}}',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: [{
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            tooltipFormat: 'YYYY-MM-DD',
+                        },
+                    }],
+
+                    y: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Close Price',
+                        },
+                    }],
+                }
+            }
+        });
     </script>
 </body>
+
 </html>
